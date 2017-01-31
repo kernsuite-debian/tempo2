@@ -58,7 +58,7 @@ void readTimfile(pulsar *psr,char timFile[][MAX_FILELEN],int npsr)
     int p,i;
     int jumpVal=0;
     FILE *fin;
-    const char *CVS_verNum = "$Id: 008e37f23fd7febbe0cee2adef0d356a8020a22d $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("readTimfile.C","readTimfile()",CVS_verNum);
 
@@ -119,7 +119,7 @@ void readTim(char *timname,pulsar *psr,int *jumpVal)
     FILE *fin;
     char profileDir[MAX_STRLEN]="";
     char tt[MAX_STRLEN];
-    int nread=0,nread2,nObs=0,i,k;
+    int nread=0,nread2,nObs=0,i;
     char firstWord[1000],line[1000]="",dummy[1000];
     char param1[100];//,param2[100],param3[100],param4[100],param5[100];
     //char param6[100],param7[100],param8[100];
@@ -196,8 +196,8 @@ void readTim(char *timname,pulsar *psr,int *jumpVal)
                 valid=-2;
             //	  printf("Have read %s\n",line);
 
-            /* Remove \n character at end */
-            if (line[strlen(line)-1]=='\n') line[strlen(line)-1]='\0';
+            /* Remove whitespace (or eol) characters at end of line */
+            while (strlen(line) > 0 && isspace(line[strlen(line)-1])) line[strlen(line)-1]='\0';
             if (line[0]!='C' && line[0]!='#') /* Ignore comment lines     */
             {
                 /* Read default columns */
@@ -225,23 +225,22 @@ void readTim(char *timname,pulsar *psr,int *jumpVal)
                         }
                     }
 
-		  char sat_day_str[5];
-		  char sat_sec_str[1024];
+                    char sat_day_str[5];
+                    char sat_sec_str[1024];
 
-		  sat_sec_str[0] = '0';
-		  //sat_sec_str[1] = '.';
-		  int sindexcounter=0;
-		  for(int sindex = 0; sindex < 1024; sindex++){
-			if(sindex < 5){
-				sat_day_str[sindex] = sat_str[sindex];
-			}
-			if(sindex>=5){
-				sat_sec_str[sindex-4] = sat_str[sindex];
-			}
-		  }
+                    sat_sec_str[0] = '0';
+                    //sat_sec_str[1] = '.';
+                    for(int sindex = 0; sindex < 1024; sindex++){
+                        if(sindex < 5){
+                            sat_day_str[sindex] = sat_str[sindex];
+                        }
+                        if(sindex>=5){
+                            sat_sec_str[sindex-4] = sat_str[sindex];
+                        }
+                    }
 
-		  psr->obsn[nObs].sat_day = parse_longdouble(sat_day_str);
-		  psr->obsn[nObs].sat_sec = parse_longdouble(sat_sec_str);
+                    psr->obsn[nObs].sat_day = parse_longdouble(sat_day_str);
+                    psr->obsn[nObs].sat_sec = parse_longdouble(sat_sec_str);
 
                     psr->obsn[nObs].sat = parse_longdouble(sat_str);
                     psr->obsn[nObs].phaseOffset = 0.0;
@@ -251,6 +250,7 @@ void readTim(char *timname,pulsar *psr,int *jumpVal)
 
                     /*		  strcpy(psr->obsn[nObs].flagID[0],"FLAGID");
                               strcpy(psr->obsn[nObs].flagVal[0],"FLAGVAL"); */
+
                     for (i=0;i<(int)strlen(line)-1;i++)
                     {
                         if (line[i]=='-' && (line[i+1] < 48 || line[i+1] > 57))
@@ -287,10 +287,9 @@ void readTim(char *timname,pulsar *psr,int *jumpVal)
                                 // Check for DM changes
                                 if (strcmp(psr->obsn[nObs].flagID[psr->obsn[nObs].nFlags],"-dme")==0)
                                 {
-                                    double dme,dm,toaErr,freq,toaCorr;
+                                    double dme,dm,freq,toaCorr;
                                     sscanf(psr->obsn[nObs].flagVal[psr->obsn[nObs].nFlags],"%lf",&dme);
                                     sscanf(psr->obsn[nObs].flagVal[psr->obsn[nObs].nFlags-1],"%lf",&dm);
-                                    toaErr = psr->obsn[nObs].toaErr*1.0e-6;
                                     freq = psr->obsn[nObs].freq*1e6;
 
                                     toaCorr = dme/DM_CONST/1.0e-12/freq/freq;

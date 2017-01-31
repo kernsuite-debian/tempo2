@@ -39,7 +39,7 @@ double BTXmodel(pulsar *psr,int p,int ipos,int param,int k)
     double torb;
     double tt0;
     double orbits;
-    int i,j;
+    int j;
     //  double pb;     /* Orbital period (sec) */
     //  double pbdot;
     //  double xpbdot;
@@ -54,7 +54,7 @@ double BTXmodel(pulsar *psr,int p,int ipos,int param,int k)
     double phase;
     double ep,dep,bige,tt,som,com;
     double alpha,beta,sbe,cbe,q,r,s,fac;
-    const char *CVS_verNum = "$Id: 83dda52b02bf8ed8c7db134e9fd4bca448298d41 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("BTXmodel.C","BTXmodel()",CVS_verNum);
 

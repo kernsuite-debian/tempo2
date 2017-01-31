@@ -277,9 +277,11 @@ initialize_meteorology_table(int dispWarnings,
     { printf("Read error in tropo.C\n"); exit(1); }
 #endif
 #ifdef GLOB_NOMATCH
-    else if (globRet == GLOB_NOMATCH)
-    { if (dispWarnings==0)
-        printf("No .%s files in $TEMPO2/%s\n", extension, path); return; }
+    else if (globRet == GLOB_NOMATCH) { 
+        if (dispWarnings==0){
+            printf("No .%s files in $TEMPO2/%s\n", extension, path); return; 
+        }
+    }
 #endif
 
     for (pfname = g.gl_pathv; *pfname != NULL; pfname++)
@@ -373,7 +375,7 @@ compute_tropospheric_delays(pulsar *psr,int npsr)
     observatory *obs;
     double source_elevation;
     double pressure;
-    const char *CVS_verNum = "$Id: 1173281a9fb4c61987016cb7c23f10b4e756fcf6 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("tropo.C","computer_tropospheric_delays()",CVS_verNum);
 

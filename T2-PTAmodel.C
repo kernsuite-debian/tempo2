@@ -39,7 +39,7 @@ longdouble computeU(longdouble phase,longdouble e);
 
 double T2_PTAmodel(pulsar *psr,int p,int ipos,int param,int arr)
 {
-    const char *CVS_verNum = "$Id: a46516f07a169683e572f4f14107b75ac12fdab9 $";
+    const char *CVS_verNum = "$Id$";
     longdouble SUNMASS = 4.925490947e-6;
     longdouble T0,tbbat,dt;
     longdouble e,e0,edot;
@@ -180,12 +180,12 @@ double T2_PTAmodel(pulsar *psr,int p,int ipos,int param,int arr)
 
             // Equation 74
             {
-                longdouble pi_daop,rdote1,rdote2,r1,r2,r3,sin_delta,cos_delta,sin_alpha,cos_alpha;
+                longdouble pi_daop,rdote1,rdote2,sin_delta,cos_delta,sin_alpha,cos_alpha;
                 longdouble px;
 
-                r1 = psr->obsn[ipos].earth_ssb[0]/AULTSC;
+/*                r1 = psr->obsn[ipos].earth_ssb[0]/AULTSC;
                 r2 = psr->obsn[ipos].earth_ssb[1]/AULTSC;
-                r3 = psr->obsn[ipos].earth_ssb[2]/AULTSC;
+                r3 = psr->obsn[ipos].earth_ssb[2]/AULTSC;*/
 
                 /* Obtain vector pointing at the pulsar */
                 sin_delta = psr->obsn[ipos].psrPos[2];

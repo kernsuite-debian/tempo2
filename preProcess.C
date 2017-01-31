@@ -64,7 +64,7 @@ void preProcess(pulsar *psr,int npsr,int argc,char **argv)
     int trimonly = 0;
     char modifyFname[100];
     double simulate=0;
-    const char *CVS_verNum = "$Id: fd2f67478b5026a349ff9caaf1c0726ff44f7fc5 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("preProcess.C","preProcess()",CVS_verNum);
 

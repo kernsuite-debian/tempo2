@@ -60,7 +60,7 @@ void getInputs(pulsar *psr,int argc, char *argv[],char timFile[][MAX_FILELEN],
     int timfile_num = 0;  /* Have we got a timfile? */
     int gotTim=0;
     *list = 0;  /* Don't list parameters */
-    const char *CVS_verNum = "$Id: d0f42953bf26f761552875da2162e909a39c1336 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("getInputs.C","getInputs()",CVS_verNum);
     //  *nGlobal=0; /* How many global parameters are we fitting? */
@@ -208,6 +208,10 @@ void getInputs(pulsar *psr,int argc, char *argv[],char timFile[][MAX_FILELEN],
             else if (strcmp(argv[i],"-polyco_file")==0)
             {
                 strcpy(polyco_file, argv[++i]);
+            }
+            else if (strcmp(argv[i],"-clkdir")==0)
+            {
+                strcpy(tempo2_clock_path, argv[++i]);
             }
             else if (i==argc-1 && gotTim==0) /* Must be .tim file name */
             {

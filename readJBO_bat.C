@@ -43,17 +43,17 @@ void swap8(double* in){ swap8((char*)in);}
 
 void readJBO_bat(char *fname,pulsar *psr,int p)
 {
-    int itype,i,swap;
-    int endit=0;
+    int itype;
+// UNUSED VARIABLE //     int endit=0;
     int nobs=0;
     char raw_record[25*8];
     char cbuf[25][9];
-    int *ints;
+// UNUSED VARIABLE //     int *ints;
     double *doubles;
-    ints = (int*)raw_record;
+    //ints = (int*)raw_record;
     doubles = (double*)raw_record;
 
-    const char *CVS_verNum = "$Id: 4ccdf30886832e413681bd109f0e7cd00d3b5477 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("readJBO_bat.C","readJBO_bat()",CVS_verNum);
 

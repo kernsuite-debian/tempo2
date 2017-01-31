@@ -55,8 +55,8 @@ double BTJmodel(pulsar *psr,int p,int ipos,int param,int arr)
     int    norbits,i;
     double phase;
     double ep,dep,bige,tt,som,com;
-    double alpha,beta,sbe,cbe,q,r,s,W;
-    const char *CVS_verNum = "$Id: f1c1265ea8cfe1c21104fe7b3c11efe831016bfb $";
+    double alpha,beta,sbe,cbe,q,r,s;
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("BTJmodel.C","BTJmodel()",CVS_verNum);
 
@@ -129,7 +129,7 @@ double BTJmodel(pulsar *psr,int p,int ipos,int param,int arr)
 
     if (param==-1) return torb;
 
-    W = asini*(sin(omega)*sbe - sqrt(1.0-ecc*ecc)*cos(omega)*cbe)/(1.0-ecc*cbe);
+  //  W = asini*(sin(omega)*sbe - sqrt(1.0-ecc*ecc)*cos(omega)*cbe)/(1.0-ecc*cbe);
 
     if (param==param_pb)
         return -2.0*M_PI*r*s/pb*SECDAY*tt0/(SECDAY*pb) * SECDAY;  /* fctn(12+j) */

@@ -35,7 +35,6 @@
 //#include "tempo2pred_int.h"
 
 char TEMPO2_ENVIRON[MAX_STRLEN]="TEMPO2";
-char TEMPO2_ERROR[MAX_STRLEN]="";
 
 char NEWFIT=0;
 
@@ -45,12 +44,14 @@ double ECLIPTIC_OBLIQUITY = ECLIPTIC_OBLIQUITY_VAL;
 int forceGlobalFit = 0;
 int veryFast = 0;
 int displayCVSversion = 0;
-char tempo2MachineType[MAX_FILELEN] = "";
+char tempo2MachineType[MAX_FILELEN];
 
 char dcmFile[MAX_FILELEN]="NULL";
 char covarFuncFile[MAX_FILELEN]="NULL";
 char tempo2_plug_path[32][MAX_STRLEN];
 int tempo2_plug_path_len=0;
+
+char tempo2_clock_path[MAX_STRLEN]="";
 
 // From choleskyRoutines.h ... "some global variables that Ryan is still using for diagnostic purposes"
 double FCALPHA, WNLEVEL, EXPSMOOTH, UPW, NFIT, FCFINAL;
@@ -62,7 +63,7 @@ double FCALPHA, WNLEVEL, EXPSMOOTH, UPW, NFIT, FCFINAL;
 
 void extra_delays(pulsar *psr,int npsr)
 {  
-    const char *CVS_verNum = "$Id: 22b76fd432f337ff723518e897e868e35d1cbe73 $";
+    const char *CVS_verNum = "$Id$";
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"extra_delays()",CVS_verNum);
 
     calculate_bclt(psr,npsr);/* 3. Calculate bclt  */
@@ -72,7 +73,7 @@ void extra_delays(pulsar *psr,int npsr)
 
 void clock_corrections(pulsar *psr,int npsr)
 {  
-    const char *CVS_verNum = "$Id: 22b76fd432f337ff723518e897e868e35d1cbe73 $";
+    const char *CVS_verNum = "$Id$";
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"clock_corrections()",CVS_verNum);
 
     logdbg("Calling toa2utc");
@@ -82,26 +83,46 @@ void clock_corrections(pulsar *psr,int npsr)
     tai2ut1(psr,npsr);        /* 3. TAI -> UT1                    */
     //   tai2tt(psr,npsr);      /* 4. TAI -> TT                     */
     logdbg("Calling tt2tb");
-    tt2tb(psr,npsr);          /* 5. Rough estimate of TT-TB (+-2.2 microsec) */
+    //tt2tb(psr,npsr);          /* 5. Rough estimate of TT-TB (+-2.2 microsec) */
+  if(psr[0].useCalceph ==0)
+    {
+      
+      tt2tb(psr,npsr);         
+    }
+  else
+    {
+      tt2tb_calceph(psr,npsr);
+      tt2tb(psr,npsr);
+    }
+    
+
     logdbg("Done clock corrections");
 }
 
 void ephemeris_routines(pulsar *psr,int npsr)
 { 
-    const char *CVS_verNum = "$Id: 22b76fd432f337ff723518e897e868e35d1cbe73 $";
+    const char *CVS_verNum = "$Id$";
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"ephemeris_routines()",CVS_verNum);
 
     logtchk("call vectorPulsar()");
     vectorPulsar(psr,npsr);   /* 1. Form a vector pointing at the pulsar */
     logtchk("call readEphemeris()");
     if (psr[0].useCalceph == 0)
-        readEphemeris(psr,npsr,0);/* 2. Read the ephemeris */
+      readEphemeris(psr,npsr,0);/* 2. Read the ephemeris */
     else
-        readEphemeris_calceph(psr,npsr);
+      readEphemeris_calceph(psr,npsr);
     logtchk("call get_obsCoord()");
     get_obsCoord(psr,npsr);   /* 3. Get Coordinate of observatory relative to Earth's centre */
     logtchk("call tt2tb()");
-    tt2tb(psr,npsr);          /* Observatory/time-dependent part of TT-TB */
+    if  (psr[0].useCalceph == 0)
+      {
+      tt2tb(psr,npsr);          /* Observatory/time-dependent part of TT-TB */
+      }
+    else
+      {
+	tt2tb(psr,npsr); 
+	tt2tb_calceph(psr,npsr);
+      }
     logtchk("call readEphemeris()");
     if (psr[0].useCalceph == 0)
         readEphemeris(psr,npsr,0);  /* Re-evaluate ephemeris with correct TB */ 
@@ -111,7 +132,7 @@ void ephemeris_routines(pulsar *psr,int npsr)
 
 void formBatsAll(pulsar *psr,int npsr)
 {
-    const char *CVS_verNum = "$Id: 22b76fd432f337ff723518e897e868e35d1cbe73 $";
+    const char *CVS_verNum = "$Id$";
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"formBatsAll()",CVS_verNum);
 
     logtchk("enter formBatsAll()");
@@ -135,7 +156,7 @@ void formBatsAll(pulsar *psr,int npsr)
 // to change if psr position has been altered.
 void updateBatsAll(pulsar *psr, int npsr)
 {
-    const char *CVS_verNum = "$Id: 22b76fd432f337ff723518e897e868e35d1cbe73 $";
+    const char *CVS_verNum = "$Id$";
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"updateBatsAll()",CVS_verNum);
 
     vectorPulsar(psr, npsr);

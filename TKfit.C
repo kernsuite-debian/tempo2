@@ -38,6 +38,7 @@
 #include "T2toolkit.h"
 #include "T2accel.h"
 #include "TKfit.h"
+#include "TKrobust.h"
 
 void TKremovePoly_f(float *px,float *py,int n,int m)
 {
@@ -161,6 +162,15 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         double** designMatrix, double** white_designMatrix,
         double** constraintsMatrix, int ndata,int nparams, int nconstraints, double tol, char rescale_errors,
         double* outP, double* e, double** Ocvm, char robust){
+
+    if (robust > 48 ){
+       return TKrobust(data,white_data,
+               designMatrix, white_designMatrix, constraintsMatrix, ndata, nparams, nconstraints, tol,
+               rescale_errors,outP,e,Ocvm, robust);
+    }//end of if robust
+
+
+
     double chisq = 0;
     int i,j,k;
 
@@ -185,7 +195,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         needToFreeCVM=true;
     }
 
-    if(writeResiduals==1 && white_data!=NULL && data != NULL){
+    if((writeResiduals&1) && white_data!=NULL && data != NULL){
         logdbg("Writing out whitened residuals");
         FILE* wFile=fopen("prefit.res","w");
         if (!wFile){
@@ -200,7 +210,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         }
 
     }
-    if(writeResiduals==1){
+    if(writeResiduals&2){
         logdbg("Writing out design matrix");
         FILE * wFile=fopen("design.matrix","w");
         if (!wFile){
@@ -216,6 +226,21 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
             }
             fclose(wFile);
         }
+        wFile=fopen("constraints.matrix","w");
+        if (!wFile){
+            printf("Unable to write out constraints matrix: cannot open file constraints.matrix\n");
+        }
+        else
+        {
+            for (i=0;i<nconstraints;i++) {
+                for (j=0;j<nparams;j++){
+                    fprintf(wFile,"%d %d %lg\n",i,j,constraintsMatrix[i][j]);
+                }
+                fprintf(wFile,"\n");
+            }
+            fclose(wFile);
+        }
+
     }
 
 
@@ -243,7 +268,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
                 //if(i==j)logmsg("Cmatrix ic=%d ip=%d %lg",i,j,constraintsMatrix[i][j]);
             }
         }
-        if(writeResiduals==1){
+        if(writeResiduals&2){
             logdbg("Writing out augmented design matrix");
             FILE * wFile=fopen("adesign.matrix","w");
             if (!wFile){
@@ -411,25 +436,27 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
 
     }
 
-    if (writeResiduals){
+    if (writeResiduals&4){
         double sum,sum_w;
-        FILE* wFile=fopen("postfit.txt","w");
+        FILE* wFile=fopen("postfit.res","w");
         if (!wFile){
             printf("Unable to open file postfit.res for writing\n");
         }
         else
         {
-            for (i=0;i<ndata;i++)
-            {
-                sum=0;
-                sum_w=0;
-                for (j=0;j<nparams;j++){
-                    sum += designMatrix[i][j]*outP[j];
-                    sum_w += white_designMatrix[i][j]*outP[j];
+            if(outP!=NULL){
+                for (i=0;i<ndata;i++)
+                {
+                    sum=0;
+                    sum_w=0;
+                    for (j=0;j<nparams;j++){
+                        sum += designMatrix[i][j]*outP[j];
+                        sum_w += white_designMatrix[i][j]*outP[j];
+                    }
+                    fprintf(wFile,"%d %lg %lg\n",i,(double)(data[i]-sum),(double)(white_data[i]-sum_w));
                 }
-                fprintf(wFile,"%d %lg %lg\n",i,(double)(data[i]-sum),(double)(white_data[i]-sum_w));
+                fclose(wFile);
             }
-            fclose(wFile);
         }
     }
     if(needToFreeCVM){
@@ -446,146 +473,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
 
     /** Robust Estimator code by Wang YiDi, Univ. Manchester 2015 **/
 
-    if (robust > 48 ){
-        double sum;
-        logmsg("ROBUST '%c'",robust);
-
-        //parameters for robust estimation
-        double resid[ndata];//residual after the calculation of leastsquare
-        longdouble Weight[ndata];//reweights
-        double median = 0.0;
-        double newval[ndata];
-        double resid_new[ndata];
-
-        //Calculating the residual
-        for (j=0;j<ndata;j++)
-        {
-            sum = 0.0;
-
-            for (k=0;k<nparams;k++)
-            {
-                sum += outP[k]*white_designMatrix[j][k];
-            }
-
-            resid[j]=white_data[j]-sum;
-        }
-
-        //Median of residuals
-        for (i=0;i<ndata;i++)
-        {
-            newval[i]=fabs(resid[i]);
-        }      
-
-        median = TKfindMedian_d(newval, nparams);
-
-        //Reweight 
-        double c0 = 1.345;
-
-        double aBisquare = 4.685;
-
-        double aHampel = 0.902*1.5;
-        double bHampel = 0.902*3.5;
-        double cHampel = 0.902*8;
-
-        double aWelsch = 2.11;
-
-        FILE *rp = fopen("Wresidual.txt", "w");
-        switch (robust){
-            case '1':
-            case 'H':
-                for (j=0;j<ndata;j++)
-                {
-                    resid_new[j] = resid[j]/median;//(b[j]/white_data[j]);///sqrt(sigma);
-
-                    if (fabs(resid_new[j])<c0)
-                    {
-                        Weight[j] = 1.0;
-                    }
-                    else
-                    {
-                        Weight[j] = c0/fabs(resid_new[j]);
-                    }
-                }
-
-                break;
-
-            case 'B':
-                for (j=0;j<ndata;j++)
-                {
-                    resid_new[j] = resid[j]/median;//(b[j]/white_data[j]);
-
-                    if (fabs(resid_new[j])<aBisquare)
-                    {
-                        Weight[j] = pow(1-pow(resid_new[j]/aBisquare, 2),2);
-                    }
-                    else
-                    {
-                        Weight[j] = 0;
-                    }
-                }
-                break;
-
-            case 'R':
-                for (j=0;j<ndata;j++)
-                {
-                    resid_new[j] = resid[j]/median;//(b[j]/white_data[j]);
-
-                    if (fabs(resid_new[j])<aHampel)
-                    {
-                        Weight[j] = 1.0;
-                    }
-                    else
-                    {
-                        if (fabs(resid_new[j])<=bHampel)
-                        {
-                            Weight[j] = aHampel/fabs(resid_new[j]);
-                        }
-                        else
-                        {
-                            if (fabs(resid_new[j])<=cHampel)
-                            {
-                                Weight[j] = aHampel*(fabs(resid_new[j])-cHampel)/(fabs(resid_new[j])*(bHampel-cHampel));
-                            }
-                            else
-                            {
-                                Weight[j] = 0;
-                            }   
-                        }
-                    }
-                    fprintf(rp, "%d r=%lg   nr=%lg   eb=%lg  W=%lg\n", j+1, resid[j], resid_new[j], white_data[j]/data[j], (double)Weight[j]); 
-
-                }
-                break;
-            case 'W':
-                for (j=0;j<ndata;j++)
-                {
-                    resid_new[j] = resid[j]/median;//(b[j]/white_data[j]);
-
-                    Weight[j] = 2*aWelsch*exp(-pow(resid_new[j]/aWelsch, 2));
-                }
-                break;
-        }
-
-        fclose(rp);
-
-        //Substitute the reweight matrix
-        for (i=0; i<ndata; i++)
-        {
-            white_data[i] *= Weight[i];
-
-            for (j=0; j<nparams; j++)  white_designMatrix[i][j] *= Weight[i];    
-        } 
-
-        //Calcluation via robust estimation algorithm
-
-        chisq = TKrobustConstrainedLeastSquares(data, white_data, 
-                designMatrix, white_designMatrix, 
-                constraintsMatrix,
-                ndata, nparams, nconstraints, 
-                tol, rescale_errors, outP, e, Ocvm,0);
-    }//end of if robust
-
-
+   
     return chisq;
 }
 

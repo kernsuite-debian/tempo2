@@ -39,12 +39,8 @@
 #include "tempo2pred.h"
 #include "tempo2pred_int.h"
 #include "T2accel.h"
+#include "t2fit.h"
 #include <dlfcn.h>
-
-#ifdef HAVE_QDINSTALL
-#include <qd/dd_real.h>
-#include <qd/fpu.h>
-#endif
 
 // #include "T2toolkit.h"
 
@@ -78,16 +74,7 @@ int main(int argc, char *argv[])
     FILE *alias;
     char **commandLine;
     clock_t startClock,endClock;
-    const char *CVS_verNum = "$Id: 32f1bae4bfbb09dbc7ccf8194e1968711167da7b $";
-    int writeTMatrix=0;
-    static unsigned int oldcw;
-
-#ifdef HAVE_QDINSTALL
-
-    fpu_fix_start(&oldcw);
-    fpu_fix_end(&oldcw);
-
-#endif
+    const char *CVS_verNum = "$Id$";
 
     polyco_file[0] = '\0';
 
@@ -121,7 +108,7 @@ int main(int argc, char *argv[])
         else if (strcasecmp(argv[i],"-debug")==0){
             debugFlag=1;
             tcheck=1;
-            writeResiduals=1;
+            writeResiduals=0xff;
         }
         else if (strcasecmp(argv[i],"-tcheck")==0)
             tcheck=1;
@@ -134,13 +121,11 @@ int main(int argc, char *argv[])
         else if (strcasecmp(argv[i],"-newfit")==0)
             NEWFIT=1;
         else if (strcasecmp(argv[i],"-writeres")==0)
-            writeResiduals=1;
+            writeResiduals=0xff;
         else if (strcasecmp(argv[i],"-writetim")==0)
             writeTimFile=1;
         else if (strcasecmp(argv[i],"-veryfast")==0)
             veryFast=1;
-	else if (strcasecmp(argv[i],"-writeTMatrix")==0)
-		writeTMatrix=1;
         strcpy(commandLine[i],argv[i]);
     }
     if (displayCVSversion == 1) CVSdisplayVersion("tempo2.C","main()",CVS_verNum);
@@ -292,6 +277,13 @@ int main(int argc, char *argv[])
     }
     npsr = 0;   /* Initialise the number of pulsars */
     nGlobal=0;
+
+
+
+    // set the extra clock path if
+    if (getenv("TEMPO2_CLOCK_DIR")!=NULL){
+        strncpy(tempo2_clock_path,getenv("TEMPO2_CLOCK_DIR"), MAX_STRLEN);
+    }
     /* Obtain command line arguments */
     logdbg("Running getInputs %d",psr[0].nits);
     getInputs(psr,argc, commandLine, timFile,parFile,&listparms,&npsr,&nGlobal,&outRes,&writeModel,
@@ -351,10 +343,6 @@ int main(int argc, char *argv[])
             }
             logdbg("--ENTER GRAPHICAL PLUGIN--");
             logtchk("Start graphical plugin");
-
-#ifdef HAVE_QDINSTALL
-	    fpu_fix_end(&oldcw);
-#endif
             entry(argc,commandLine,psr,&npsr);
             logtchk("End graphical plugin");
             return 0;
@@ -564,8 +552,8 @@ int main(int argc, char *argv[])
             {
                 logdbg("calling doFit");
 
-                logtchk("calling doFitAll");
-                doFitAll(psr,npsr,covarFuncFile);
+                logtchk("calling t2Fit");
+                t2Fit(psr,npsr,covarFuncFile);
                 logmsg("Complete fit");
                 /* doFitGlobal(psr,npsr,&globalParameter,nGlobal,writeModel);*/ /* Fit to the residuals to obtain updated parameters  */
                 logdbg("completed doFit");

@@ -38,7 +38,7 @@
 void initialise(pulsar *psr,int noWarnings)
 {
     int p;
-    const char *CVS_verNum = "$Id: 69049e55d8b05c423e3079bad12e33534fbf83c1 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("initialise.C","initialise()",CVS_verNum);
 
@@ -169,6 +169,7 @@ void initialiseOne (pulsar *psr, int noWarnings, int fullSetup)
     psr->nToffset = 0;
     psr->ndmx = 0;
     psr->nconstraints = 0;
+    psr->constraint_efactor = 1e15;
     psr->auto_constraints = 0;
     psr->jboFormat=0;
     // Moved from readTimfile.C (next line):
