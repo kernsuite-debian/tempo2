@@ -1,0 +1,12 @@
+Source: tempo2
+Section: science
+Priority: optional
+Maintainer: Gijs Molenaar (launchpad ppa build key) <gijs@pythonic.nl>
+Build-Depends: debhelper (>=9), dh-autoreconf, gfortran
+Standards-Version: 3.9.6
+Homepage: https://bitbucket.org/psrsoft/tempo2/
+
+Package: tempo2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description:  pulsar timing package

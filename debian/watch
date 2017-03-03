@@ -1,0 +1,2 @@
+version=3
+https://bitbucket.org/psrsoft/tempo2/downloads?tab=tags .*/(\d\S+)\.tar\.gz
