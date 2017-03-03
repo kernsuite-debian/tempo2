@@ -46,3 +46,5 @@ unsupported_plugins/Makefile.in
 unsupported_plugins/glast/Makefile.in
 unsupported_plugins/splug/Makefile.in
 unsupported_plugins/toasim/Makefile.in
+tests/gtest-1.7.0/build-aux/config.guess
+tests/gtest-1.7.0/build-aux/config.sub
