@@ -1,12 +1,32 @@
 Source: tempo2
 Section: science
 Priority: optional
-Maintainer: Gijs Molenaar (launchpad ppa build key) <gijs@pythonic.nl>
+Maintainer: KERN packaging <packaging@kernsuite.info>
 Build-Depends: debhelper (>=9), dh-autoreconf, gfortran, libltdl-dev
 Standards-Version: 3.9.6
 Homepage: https://bitbucket.org/psrsoft/tempo2/
+Vcs-Git: git://github.com/kernsuite-debian/tempo2.git
+Vcs-Browser: https://github.com/kernsuite-debian/tempo2
 
 Package: tempo2
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description:  pulsar timing package
+ Tempo2 is a new pulsar timing package. It was developed to be used both for
+ general pulsar timing applications and also for pulsar timing array research 
+ in which data-sets from multiple pulsars need to be processed simultaneously.
+ Tempo2 was initially developed by George Hobbs and Russell Edwards as part of
+ the Parkes Pulsar Timing Array project. A summary of the features of tempo2
+ was published in Hobbs, Edwards & Manchester (2006). Full details of the
+ timing model were published in Edwards, Hobbs & Manchester (2006).
+ .
+ Tempo2 is now being used in pulsar timing research world-wide. It has been
+ used in the analysis of PSR J1600-3053 (Ord et al. 2006), to limit the
+ existence of gravitational waves (Jenet et al. 2006) and in studying pulsar
+ dispersion measures (You et al. 2007).
+ .
+ Tempo2 is based on the original tempo code and can be used (from the
+ command-line) in a similar fashion. However, tempo2 is very versatile and can
+ be extended by the creation of pieces of software called plug-ins. It is
+ expected that many such plug-ins will be written and made available on this
+ wiki.
