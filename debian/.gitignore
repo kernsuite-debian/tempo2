@@ -1,0 +1,5 @@
+.debhelper/
+files
+tempo2.debhelper.log
+tempo2.substvars
+tempo2/
