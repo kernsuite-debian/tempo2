@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     FILE *alias;
     char **commandLine;
     clock_t startClock,endClock;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 3eba6778adfa5a1a70c93c91ea04239bea9c1f7d $";
 
     polyco_file[0] = '\0';
 
@@ -268,9 +268,14 @@ int main(int argc, char *argv[])
         printf("\n");
 #ifdef HAVE_LAPACK
         printf("* Using LAPACK acceleration for Cholesky decomposition\n");
+#else
+
+        printf("* Using slow linear algebra code (compile with LAPACK for speed improvements)\n");
 #endif
 #ifdef HAVE_BLAS
         printf("* Using BLAS acceleration for matrix mulitplication\n");
+#else
+        printf("* Using slow matrix code (compile with BLAS for speed improvements)\n");
 #endif
         printf("\nFor more help, use %s -h\n",argv[0]);
         exit(1);
@@ -301,13 +306,13 @@ int main(int argc, char *argv[])
             if (strcmp(commandLine[i],"-gr2")==0){
                 sprintf(str,"./%s_%s_plug.t2",commandLine[i+1],tempo2MachineType);
                 printf("Looking for %s\n",str);
-                module = dlopen(str, RTLD_NOW);
+                module = dlopen(str, RTLD_NOW|RTLD_GLOBAL);
             } else{
                 for (int iplug=0; iplug < tempo2_plug_path_len; iplug++){
                     sprintf(str,"%s/%s_%s_plug.t2",tempo2_plug_path[iplug],
                             commandLine[i+1],tempo2MachineType);
                     printf("Looking for %s\n",str);
-                    module = dlopen(str, RTLD_NOW); 
+                    module = dlopen(str, RTLD_NOW|RTLD_GLOBAL); 
                     if(module==NULL){	  
                         printf("dlerror() = %s\n",dlerror());
                     } else break;
@@ -570,7 +575,7 @@ int main(int argc, char *argv[])
                         sprintf(str,"%s/%s_%s_plug.t2",tempo2_plug_path[iplug],
                                 outputSO,tempo2MachineType);
                         printf("Looking for %s\n",str);
-                        module = dlopen(str, RTLD_NOW); 
+                        module = dlopen(str, RTLD_NOW|RTLD_GLOBAL); 
                         if(module==NULL){	  
                             printf("dlerror() = %s\n",dlerror());
                         } else break;

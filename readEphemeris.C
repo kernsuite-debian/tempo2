@@ -64,7 +64,7 @@ void readEphemeris(pulsar *psr,int npsr,int addEphemNoise)
     double one_au;
 // UNUSED VARIABLE //     int err_code;
     int i,p;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 964ce4cbda0cef459e77c471dfaae0caf91f35e5 $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("readEphemeris.C","readEphemeris()",CVS_verNum);
 

@@ -120,7 +120,7 @@ double T2model(pulsar *psr,int p,int ipos,int param,int arr)
     int mode = -1; // See ELL1Hmodel.C
 
     torb = 0.0;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 860b7734a8d3801578d99a6c09376c39f5864e6f $";
 
 
     if (displayCVSversion == 1) 

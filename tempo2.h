@@ -49,7 +49,7 @@
 #include "TKlog.h"
 
 
-#define TEMPO2_h_HASH "$Id$"
+#define TEMPO2_h_HASH "$Id: efb589e47998f21fdc20a12a28ff7351d5c78f2c $"
 #define TEMPO2_h_VER "2016.11.3"
 #define TEMPO2_h_MAJOR_VER 2016.11
 #define TEMPO2_h_MINOR_VER 3
@@ -90,6 +90,7 @@
 #define MAX_TOFFSET          10    /*!< Number of time jumps allowed in .par file        */
 #define MAX_QUAD             150   /*!< Maximum number of frequency channels in quadrupolar function */
 #define MAX_DMX             512    /*!< Max number of DM steps allowed */
+#define MAX_SX              512     /*!< Max number of Scatter steps allowed */
 #define MAX_FLAGS            40    /*!< Maximum number of flags in .tim file/observation */
 #define MAX_FLAG_LEN         32    /*!< Maximum number of characters in each flag */
 #define MAX_CLK_CORR         30    /*!< Maximum number of steps in the correction to TT  */ 
@@ -176,9 +177,12 @@ enum label {
     param_h3,param_h4,param_nharm,param_stig,
     param_telx,param_tely,param_telz,param_telEpoch,param_quad_ifunc_p,
     param_quad_ifunc_c,param_tel_dx,param_tel_dy,param_tel_dz,
-    param_tel_vx,param_tel_vy,param_tel_vz,param_tel_x0,param_tel_y0,param_tel_z0,param_gwm_amp,param_gwecc,param_gwb_amp,
+    param_tel_vx,param_tel_vy,param_tel_vz,param_tel_x0,param_tel_y0,param_tel_z0,param_gwm_amp,param_gwcs_amp,param_gwecc,param_gwb_amp,
     param_dm_sin1yr,param_dm_cos1yr,param_brake,param_stateSwitchT,param_df1,
     param_red_sin, param_red_cos,param_jitter,param_red_dm_sin, param_red_dm_cos,
+    param_band_red_sin, param_band_red_cos,param_sx, param_sxr1, param_sxr2, param_sxer,
+    param_group_red_sin, param_group_red_cos,
+    param_ne_sw,
     // ** ADD NEW PARAMETERS ABOVE HERE **
     // THE BELOW LINE MUST BE THE LAST LINE IN THIS ENUM
     param_LAST, /*!< Marker for the last param to be used in for loops  */
@@ -243,8 +247,12 @@ enum constraint {
     constraint_qifunc_c_year_cos2,
     constraint_red_sin,
     constraint_red_cos,
+    constraint_band_red_sin,
+    constraint_band_red_cos,
     constraint_red_dm_sin,
     constraint_red_dm_cos,
+    constraint_group_red_sin,
+    constraint_group_red_cos,
     constraint_jitter,
     constraint_LAST /*!< marker for the last constraint */
 };
@@ -294,6 +302,17 @@ typedef double (*constraintDerivFunc)(struct pulsar*, int,constraint_label,param
  */
 typedef void (*paramUpdateFunc)(struct pulsar*, int,param_label,int,double,double);
 
+
+typedef struct FitOutput {
+    double parameterEstimates[MAX_FIT];
+    double errorEstimates[MAX_FIT];
+    int indexPsr[MAX_FIT];
+    param_label indexParam[MAX_FIT];
+    int indexCounter[MAX_FIT];
+    int totalNfit;
+} FitOutput;
+
+
 /*!
  * @brief contains details of the fit
  *
@@ -311,7 +330,9 @@ typedef struct FitInfo {
     paramDerivFunc paramDerivs[MAX_FIT];
     constraintDerivFunc constraintDerivs[MAX_FIT];
     paramUpdateFunc updateFunctions[MAX_FIT];
+    FitOutput output;
 } FitInfo;
+
 
 
 typedef struct storePrecision {
@@ -505,6 +526,15 @@ typedef struct pulsar {
     double gwm_phi; // Polarisation angle
     double gwm_dphase; // Phase offset (similar to GLPH)
 
+  
+  // Gravitational wave single cosmic string parameters
+  double gwcs_raj;
+  double gwcs_decj;
+  double gwcs_epoch;
+  double gwcs_width;
+  double gwcs_geom_p;
+  double gwcs_geom_c;
+
     // Ryan's gw burst parameters
     double gwb_epoch;
     double gwb_width;
@@ -549,6 +579,7 @@ typedef struct pulsar {
     int    nJumps;                  /*!< Number of jumps                                            */
     char fjumpID[16];
     double jumpVal[MAX_JUMPS];      /*!< Value of jump                                              */
+    char   jumpSAT[MAX_JUMPS];      /*!< This jump is in SAT rather than phase */
     int    fitJump[MAX_JUMPS];      /*!< = 1 if fit for jump                                        */
     double jumpValErr[MAX_JUMPS];   /*!< Error on jump                                              */
     char   jumpStr[MAX_JUMPS][MAX_STRLEN]; /*!< String describing jump                              */
@@ -560,6 +591,7 @@ typedef struct pulsar {
     char   tOffsetSite[MAX_TOFFSET][100],tOffsetFlags[MAX_TOFFSET][1000];
     int    nToffset;
     int    ndmx;                    /*!< Number of DM steps */
+    int    nSx;                     /*!< Number of Scatter steps */
     double fitChisq;                /*!< Chisq value from the fit */
     int    fitNfree;                /*!< Number of degrees of freedom in fit */
     int    globalNfit;              /*!< Total number of parameters in the fit */
@@ -567,10 +599,10 @@ typedef struct pulsar {
     int    nFit;                    /*!< Number of points in the fit */
     int    nParam;                  /*!< Number of parameters in the fit */
     int    nGlobal;                 /*!< Number of global parameters in the fit */
-    int fitParamGlobalI[MAX_FIT];   // number of global parameters in fit
-    int fitParamGlobalK[MAX_FIT];    // number of global parameters in fit
-    int    fitParamI[MAX_FIT];
-    int    fitParamK[MAX_FIT];
+//    int fitParamGlobalI[MAX_FIT];   // number of global parameters in fit
+//    int fitParamGlobalK[MAX_FIT];    // number of global parameters in fit
+//    int    fitParamI[MAX_FIT];
+//    int    fitParamK[MAX_FIT];
     int    fitMode;                 /*!< = 0 not fitting with errors, = 1 fitting with errors (MODE 1) */
     char    robust;
     int    rescaleErrChisq;         /*!< = 1 to rescale errors based on the reduced chisq, = 0 not to do this */

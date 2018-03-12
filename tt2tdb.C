@@ -69,7 +69,7 @@ void tt2tb(pulsar *psr,int npsr)
     double deltaT=0.0, obsTerm, earthVel[3];
     double deltaTDot, obsTermDot, earthVelDot[3];
     int first=1;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 3adb06c3036bdc5fe89a9bc196b78683739ea915 $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("tt2tdb.C","tt2tdb()",CVS_verNum);
 

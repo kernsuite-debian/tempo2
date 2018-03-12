@@ -55,7 +55,7 @@ void xform_mjd(struct parameter *p,int arr, longdouble f)
     void
 transform_units(struct pulsar *psr, int from, int to)
 {
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 470de0f2314a8ae987c4302a2dae6faea7deae3c $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("units.C","transform_units()",CVS_verNum);
 

@@ -42,7 +42,7 @@ void calculate_bclt(pulsar *psr,int npsr)
 {
 
 
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: f754b87461ba4e5e29e45e56de9d88777cc9905e $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("calculate_bclt.C","calculate_bclt()",CVS_verNum);
 

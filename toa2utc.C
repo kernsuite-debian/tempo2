@@ -60,7 +60,7 @@ double convertTOA(double mjd,char *clks);
 void toa2utc(pulsar *psr,int npsr)
 {
     int i,p;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 98809c6df0362ddf153a3b1344a9e31ba68d20c6 $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("toa2utc.C","toa2utc__1()",CVS_verNum);
 
@@ -74,6 +74,29 @@ void toa2utc(pulsar *psr,int npsr)
                         psr[p].clock, psr[p].noWarnings);
             }
             // else clock is presumed to be TT/TDB/TCG already
+
+            /*** MJK 2017 ADD SAT JUMP as additional clock correction ***/
+            for (int k=1;k<=psr[p].nJumps;k++)
+            {
+                for (int l=0;l<psr[p].obsn[i].obsNjump;l++)
+                {
+                    if (psr[p].obsn[i].jump[l]==k && psr[p].jumpSAT[l]==1){
+                        observation *obs = psr[p].obsn+i;
+                        // we will add a new clock at the start
+                        ++(obs->nclock_correction);
+                        // so shift all the corrections on by one.
+                        for (int icc=obs->nclock_correction; icc > 0; --icc) {
+                            obs->correctionsTT[icc].correction =  obs->correctionsTT[icc-1].correction;
+                            strncpy(obs->correctionsTT[icc].corrects_to,obs->correctionsTT[icc-1].corrects_to,31);
+                        }
+
+                        obs->correctionsTT[0].correction = psr[p].jumpVal[k];
+                        snprintf(obs->correctionsTT[0].corrects_to,31,"SATJMP %s",psr[p].jumpStr[k]);
+
+                    }
+                }
+            }
+
         }
 }
 #else
@@ -81,7 +104,7 @@ void toa2utc(pulsar *psr,int npsr)
 void toa2utc(pulsar *psr,int npsr)
 {
     int i,j,p,found=0;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 98809c6df0362ddf153a3b1344a9e31ba68d20c6 $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("toa2utc.C","toa2utc__2()",CVS_verNum);
 

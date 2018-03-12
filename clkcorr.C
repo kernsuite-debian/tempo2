@@ -683,7 +683,7 @@ getCorrection(observation *obs, const char *clockFrom_c, const char *clockTo, in
     size_t ifunc;
     ClockCorrectionFunction *func;
     double correction = 0.0;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: f2a81bfcb137d08cf99befef9cd3ba17f9dbe5d5 $";
     char clockFrom[128];
     char currClock[128];
     strcpy(clockFrom,clockFrom_c);

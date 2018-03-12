@@ -61,7 +61,7 @@ using namespace std;
 
 double solarWindModel(pulsar psr,int iobs)
 {
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 7e9c3ac6b5081fd23b9a3a87267ccb2313e39666 $";
     int i,j;
     double deg2rad = M_PI/180.0;
     longdouble mjd;
