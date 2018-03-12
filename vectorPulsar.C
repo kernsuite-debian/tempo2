@@ -59,7 +59,7 @@ void vectorPulsar(pulsar *psr,int npsr)
     double ca,sa,cd,sd,convert,dec;
     double alpha,delta;
     int p;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 6005237cfa1e566be98ee960da7ed976b204d63e $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("vectorPulsar.C","vectorPulsar()",CVS_verNum);
 

@@ -54,7 +54,7 @@ double BTXmodel(pulsar *psr,int p,int ipos,int param,int k)
     double phase;
     double ep,dep,bige,tt,som,com;
     double alpha,beta,sbe,cbe,q,r,s,fac;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: b9a01be0391836be7da17e4da8fbe3b23f2201a6 $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("BTXmodel.C","BTXmodel()",CVS_verNum);
 

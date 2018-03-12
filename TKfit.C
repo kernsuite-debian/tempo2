@@ -260,7 +260,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         }
 
         // add the extra equations for constraints to the end of the least-squares problem.
-        logmsg("QR nparams=%d nconst=%d",nparams,nconstraints);
+        logmsg("QR nparams=%d nconst=%d ndata=%d",nparams,nconstraints,ndata);
         for (i=0;i<nconstraints;i++){
             augmented_white_data[i+ndata] = 0;
             for (j=0;j<nparams;j++) {
@@ -296,6 +296,10 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         }
 
     } else {
+#else
+        if(useT2accel==2) {
+            logwarn("Can't use QR fitting without LAPACK/BLAS. Defaulting to SVD.");
+        }
 #endif
         // quad precision arrays for fitting if using SVD
         // the augmented data matrix
@@ -320,12 +324,14 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         }
 
         // add the extra equations for constraints to the end of the least-squares problem.
-        logmsg("SVD nparams=%d nconst=%d",nparams,nconstraints);
+        logmsg("SVD nparams=%d nconst=%d ndata=%d",nparams,nconstraints,ndata);
         for (i=0;i<nconstraints;i++){
             augmented_white_data[i+ndata] = 0;
             for (j=0;j<nparams;j++) {
                 augmented_DM[i+ndata][j] = constraintsMatrix[i][j];
-                //if(i==j)logmsg("Cmatrix ic=%d ip=%d %lg",i,j,constraintsMatrix[i][j]);
+                //if (constraintsMatrix[i][j] != 0){
+                //    logmsg("Cmatrix ic=%d ip=%d %lg",i,j,constraintsMatrix[i][j]);
+                //}
             }
         }
 
@@ -335,7 +341,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         TKsingularValueDecomposition_lsq(augmented_DM,ndata+nconstraints,nparams,v,w,u);
 
         wmax = TKfindMax_Ld(w,nparams);
-        longdouble sensible_wmax=pow(2,sizeof(longdouble)*8-17);
+        longdouble sensible_wmax=powl(2.0,sizeof(longdouble)*8-17);
         if (wmax > sensible_wmax){
             logerr("Warning: wmax very large. Precision issues likely to break fit\nwmax=%lf\ngood=%lf",(double)wmax,(double)sensible_wmax);
         }

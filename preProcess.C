@@ -64,7 +64,7 @@ void preProcess(pulsar *psr,int npsr,int argc,char **argv)
     int trimonly = 0;
     char modifyFname[100];
     double simulate=0;
-    const char *CVS_verNum = "$Id$";
+    const char *CVS_verNum = "$Id: 2a65516c748ec5df1ed670e2e2ae139ff140e86b $";
 
     if (displayCVSversion == 1) CVSdisplayVersion("preProcess.C","preProcess()",CVS_verNum);
 
@@ -317,17 +317,31 @@ void preProcess(pulsar *psr,int npsr,int argc,char **argv)
             }
         }
 
+		
+
         // Check TNEF and TNEQ
-        if (psr[p].nTNEF > 0 || psr[p].nTNEQ > 0 || psr[p].nTNSQ > 0)
+        if (psr[p].nTNEF > 0 || psr[p].nTNEQ > 0 || psr[p].nTNSQ > 0 || psr[p].TNGlobalEF > 0 || psr[p].TNGlobalEQ != 0)
         {
             double err;
             printf("Updating TOA errors using TN parameters.\n");
             for (i=0;i<psr[p].nobs;i++)
             {
                 err = psr[p].obsn[i].toaErr;
+
+		if(psr[p].TNGlobalEF > 0){
+                           err *= psr[p].TNGlobalEF;
+                }
+
+		if(psr[p].TNGlobalEQ != 0){
+			double TNEquad = pow(10.0,psr[p].TNGlobalEQ+6)*pow(10.0,psr[p].TNGlobalEQ+6);
+                        err = sqrt(err*err + TNEquad);
+                }
+
                 for (j=0;j<psr[p].obsn[i].nFlags;j++)
                 {
                     //Check efac
+		
+
                     for (k=0;k<psr[p].nTNEF;k++)
                     {
                         if (strcmp(psr[p].obsn[i].flagID[j],psr[p].TNEFFlagID[k])==0)
@@ -424,7 +438,7 @@ void preProcess(pulsar *psr,int npsr,int argc,char **argv)
                 sprintf(str,"%s/%s_%s_splug.t2",tempo2_plug_path[iplug],
                         selectPlugName,tempo2MachineType);
                 logmsg("Looking for %s",str);
-                module = dlopen(str, RTLD_NOW); 
+                module = dlopen(str, RTLD_NOW|RTLD_GLOBAL); 
                 if(module==NULL){	  
                     printf("dlerror() = %s\n",dlerror());
                 } else break;
@@ -434,7 +448,7 @@ void preProcess(pulsar *psr,int npsr,int argc,char **argv)
             //	  sprintf(str,"%s/plugins/%s_%s_splugt2",getenv(TEMPO2_ENVIRON),
             //		  selectPlugName,tempo2MachineType);
             //	  printf("Looking for %s\n",str);
-            //	  module = dlopen(str, RTLD_NOW); 
+            //	  module = dlopen(str, RTLD_NOW|RTLD_GLOBAL); 
             if(!module)  {
                 fprintf(stderr, "[error]: dlopen() failed while resolving symbols.\n" );
                 fprintf(stderr, "dlerror() = %s\n",dlerror());
