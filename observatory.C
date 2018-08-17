@@ -68,7 +68,7 @@ readObservatoryFile(char *fname)
     char line[1024];
     observatory newObs;
     int nread, iline=0;
-    const char *CVS_verNum = "$Id: f2fda9d275f56f23e1c692ab6cd6862fb051a63a $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("observatory.C","observatory()",CVS_verNum);
 
@@ -115,7 +115,7 @@ readObservatoryFile(char *fname)
                     exit(1);
                 }
                 if (nread == 5)
-                    sprintf(newObs.clock_name, "UTC(%s)", newObs.code);
+                    snprintf(newObs.clock_name,16, "UTC(%s)", newObs.code);
                 ITRF_to_GRS80(&newObs);
                 DynamicArray_push_back(&observatories, &newObs);
 #if 0

@@ -337,7 +337,7 @@ void formResiduals(pulsar *psr,int npsr,int removeMean)
     double prev_a_p;
     int coalesceFlag_p = 0;
 
-    const char *CVS_verNum = "$Id: dde70ad2787df5575fa6d3bace0ce8e43af1f6cf $";
+    const char *CVS_verNum = "$Id$";
 
 
 
@@ -370,6 +370,7 @@ void formResiduals(pulsar *psr,int npsr,int removeMean)
                 else if (strcmp(psr[p].binaryModel,"T2-PTA")==0) torb = T2_PTAmodel(psr,p,i,-1,0);
                 else if( strcmp( psr[p].binaryModel, "DDH" ) == 0) torb = DDHmodel( psr, p, i, -1 );
                 else if( strcmp( psr[p].binaryModel, "ELL1H" ) == 0) torb = ELL1Hmodel( psr, p, i, -1 );
+		else if (strcmp( psr[p].binaryModel, "ELL1k" ) ==0)  torb = ELL1kmodel( psr, p, i, -1);
                 else {printf("Warning: Unknown binary model '%s'\n",psr[p].binaryModel); exit(1);}
             }
             psr[p].obsn[i].torb = torb; // save for plotting etc
@@ -1155,7 +1156,7 @@ void formResiduals(pulsar *psr,int npsr,int removeMean)
 		long double dt;
                 double n1,n2,n3;
                 double cosTheta;
-                double g1,g2,g3;
+                //double g1,g2,g3;
 		double width,width_day;
 		double extra1,extra2;
 
@@ -2002,7 +2003,9 @@ void formResiduals(pulsar *psr,int npsr,int removeMean)
             if (gotit==1 && time==0)
                 time=1;
             psr[p].obsn[i].residual = residual/psr[p].param[param_f].val[0];
-
+	    // setting it to fit residual tn to some default value 
+	    psr[p].obsn[i].residualtn = residual/psr[p].param[param_f].val[0];
+	    
             priorResidual=lastResidual;
             priorBat = lastBat;
             lastResidual=residual;
@@ -2060,17 +2063,29 @@ void formResiduals(pulsar *psr,int npsr,int removeMean)
 
 
 
-        if(psr[p].TNsubtractRed==1){
+        if((psr[p].TNsubtractRed==1) && (psr[p].TNsubtractDM ==0)){
             for (i=0;i<psr[p].nobs;i++){
-                psr[p].obsn[i].residual -= psr[p].obsn[i].TNRedSignal;
-            }
+	      //psr[p].obsn[i].residual -= psr[p].obsn[i].TNRedSignal;
+	      psr[p].obsn[i].residualtn = psr[p].obsn[i].residual - psr[p].obsn[i].TNRedSignal;
+	    }
         }
-        if(psr[p].TNsubtractDM==1){
+	if((psr[p].TNsubtractDM==1 ) && (psr[p].TNsubtractRed==0)) {
             for (i=0;i<psr[p].nobs;i++){
 // UNUSED VARIABLE //                 double dmkap = 2.410*pow(10.0,-16)*pow((double)psr[p].obsn[i].freqSSB,2);
-                psr[p].obsn[i].residual -= psr[p].obsn[i].TNDMSignal;
-            }
-        }
+	      //psr[p].obsn[i].residual -= psr[p].obsn[i].TNDMSignal;
+	      psr[p].obsn[i].residualtn = psr[p].obsn[i].residual - psr[p].obsn[i].TNDMSignal;
+	    }
+	}
+    
+	if((psr[p].TNsubtractDM==1 ) && (psr[p].TNsubtractRed==1)) {
+	    for (i=0;i<psr[p].nobs;i++){
+	      // UNUSED VARIABLE //                 double dmkap = 2.410*pow(10.0,-16)*pow((double)psr[p].obsn[i].freqSSB,2);
+	      //psr[p].obsn[i].residual -= psr[p].obsn[i].TNDMSignal;
+	      psr[p].obsn[i].residualtn = psr[p].obsn[i].residual - psr[p].obsn[i].TNDMSignal - psr[p].obsn[i].TNRedSignal ;
+	    } 
+	    
+	  }
+	  
         if(psr[p].AverageResiduals == 1){
             averageResiduals(psr, 1);
         }

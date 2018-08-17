@@ -61,7 +61,7 @@ double DDGRmodel(pulsar *psr,int p,int ipos,int param)
     double csigma,ce,cx,comega,cgamma,cdth,cm2,csi;
     double fact1,fact2,fact3,fact4,fact5,fact6,fact7,fact8,denumm,denomm,darrdm,ck,dkdm,cdr;
     double ddrdm,cpbdot,dpbdm,csini,dsidm,an0,dgamdm,dthdm,ddrdm2;
-    const char *CVS_verNum = "$Id: f0dc020f0e541f8646ef5d8b4222579311393750 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("DDGRmodel.C","DDGRmodel()",CVS_verNum);
 
@@ -128,10 +128,13 @@ double DDGRmodel(pulsar *psr,int p,int ipos,int param)
     phase=2.0*M_PI*(orbits-norbits);
     /*  Compute eccentric anomaly u by iterating Kepler's equation. */
     u=phase+ecc*sin(phase)*(1.0+ecc*cos(phase));
-    fac = 1.0/(1.0-ecc*cos(u));  /* NOTE COULD BE WRONG IN DDmodel - SEE USE OF FAC !!!! */
+
     do {
-        du=(phase-(u-ecc*sin(u)))*fac; 
+        
+    	fac = 1.0/(1.0-ecc*cos(u));  /* NOTE COULD BE WRONG IN DDmodel - SEE USE OF FAC !!!! */
+	du=(phase-(u-ecc*sin(u)))*fac; 
         u=u+du;
+   	
     } while (fabs(du)>1.0e-14);  /* 1e-12 in DDmodel */
 
     /*  DD equations 17a, 29 */

@@ -39,7 +39,7 @@
 void initialise(pulsar *psr,int noWarnings)
 {
     int p;
-    const char *CVS_verNum = "$Id: 704ff9174de16bace2791f27d54a6a64798978d9 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("initialise.C","initialise()",CVS_verNum);
 
@@ -201,6 +201,7 @@ void initialiseOne (pulsar *psr, int noWarnings, int fullSetup)
     psr->nDMEvents=0;
     psr->nTNShapeletEvents=0;
     psr->sorted=0;
+    psr->detUinv=0;
     allocateMemory(psr,0);
     /*  psr->param[param_track].paramSet[0]=1;
         psr->param[param_track].val[0]=0.0;
@@ -657,8 +658,6 @@ void allocateMemory(pulsar *psr, int realloc)
 
 void destroyOne (pulsar *psr)
 {
-    int i = 0;
-
     if (psr->obsn)
         free (psr->obsn);
 

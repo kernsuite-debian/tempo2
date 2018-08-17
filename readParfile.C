@@ -867,6 +867,10 @@ void checkLine(pulsar *psr,char *str,FILE *fin,parameter *elong, parameter *elat
             psr->constraints[psr->nconstraints++] = constraint_dmmodel_mean;
             psr->constraints[psr->nconstraints++] = constraint_dmmodel_cw_0;
         }
+        if((strcasecmp(cname,"DMMODEL_CMX")==0)){
+            psr->constraints[psr->nconstraints++] = constraint_dmmodel_cw_0;
+        }
+
         if((strcasecmp(cname,"DMMODEL_DM1")==0)){
             psr->constraints[psr->nconstraints++] = constraint_dmmodel_dm1;
         }
@@ -904,6 +908,18 @@ void checkLine(pulsar *psr,char *str,FILE *fin,parameter *elong, parameter *elat
         if(strcasecmp(cname,"IFUNC_ONLYPHI0")==0){
             psr->constraints[psr->nconstraints++] = constraint_ifunc_0;
         }
+
+        if(strcasecmp(cname,"IFUNC_NOF0F1")==0){
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_0;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_sin;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_cos;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_xsin;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_xcos;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_sin2;
+            psr->constraints[psr->nconstraints++] = constraint_ifunc_year_cos2;
+
+        }
+
 
         if(strcasecmp(cname,"IFUNC")==0){
             psr->constraints[psr->nconstraints++] = constraint_ifunc_0;
@@ -1849,7 +1865,7 @@ void readParfile(pulsar *psr,char parFile[][MAX_FILELEN],char timFile[][MAX_FILE
     char str[1000];
     parameter elong,elat;
     int noread=0,endit;
-    const char *CVS_verNum = "$Id: 48cfa76d6a558cb858e3d15af6a40428b07bbcf5 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"readParfile.C",(char *)"readParfile()",CVS_verNum);
 

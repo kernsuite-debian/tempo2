@@ -96,7 +96,7 @@ void t2Fit(pulsar *psr,unsigned int npsr, const char *covarFuncFile){
     double** gCM[MAX_PSR]; // constraints matrix for each pulsar
     unsigned int gNdata[MAX_PSR]; // number of data points for each pulsar (size of x and y)
 
-    logmsg("NEW fit routine. GlobalFit=%s",doGlobalFit ? "true" : "false");
+    logdbg("NEW fit routine. GlobalFit=%s",doGlobalFit ? "true" : "false");
 
     /**
      * However we are going to do the fit, we want to loop over all the pulsars
@@ -453,7 +453,7 @@ void t2Fit(pulsar *psr,unsigned int npsr, const char *covarFuncFile){
 
             if(ipsr!=0){
                 memcpy(&psr[ipsr].fitinfo.output, &psr[0].fitinfo.output, sizeof(FitOutput));
-                for (int i=0; i < totalGlobalParams; ++i) {
+                for (unsigned int i=0; i < totalGlobalParams; ++i) {
                     memcpy(psr[ipsr].covar[i],psr[0].covar[i],MAX_FIT*sizeof(double));
                 }
             }
@@ -518,13 +518,15 @@ void t2fit_prefit(pulsar* psr, int npsr){
          */
         if (psr[ipsr].TNRedAmp && psr[ipsr].TNRedGam) {
             for (int iobs = 0; iobs < psr[ipsr].nobs; ++iobs){
-                if(psr[0].TNsubtractRed==0)psr[ipsr].obsn[iobs].TNRedSignal = 0;
-                psr[ipsr].obsn[iobs].TNRedErr = 0;
+	      //if(psr[0].TNsubtractRed==0)
+	      psr[ipsr].obsn[iobs].TNRedSignal = 0;
+	      psr[ipsr].obsn[iobs].TNRedErr = 0;
             }
         }
         if (psr[ipsr].TNDMAmp && psr[ipsr].TNDMGam) {
             for (int iobs = 0; iobs < psr[ipsr].nobs; ++iobs){
-                psr[ipsr].obsn[iobs].TNDMErr = 0;
+             	    psr[ipsr].obsn[iobs].TNDMSignal =0;
+		    psr[ipsr].obsn[iobs].TNDMErr = 0;
             }
         }
     }
@@ -631,7 +633,8 @@ void t2Fit_buildDesignMatrix(pulsar* psr,int ipsr,double x, int ipos, double* af
         // call the function allocated to this fit parameter
         afunc[ifit] = func(psr,ipsr,x,ipos,param,fitinfo->paramCounters[ifit]);
         if (isnan(afunc[ifit])){
-            logerr("An element of the design matrix is NAN: %s %lg %d %s %d",psr[ipsr].name,x,ipos,label_str[param],fitinfo->paramCounters[ifit]);
+            logerr("An element of the design matrix is NaN: %s %lg %d %s %d",psr[ipsr].name,x,ipos,label_str[param],fitinfo->paramCounters[ifit]);
+            exit(1);
         }
     }
 }
@@ -1002,6 +1005,7 @@ void t2fit_fillOneParameterFitInfo(pulsar* psr, param_label fit_param, const int
         case param_a1dot:
         case param_a2dot:
         case param_omdot:
+        case param_om2dot:
         case param_orbpx:
         case param_tasc:
         case param_eps1:
@@ -1266,7 +1270,7 @@ void t2fit_fillOneParameterFitInfo(pulsar* psr, param_label fit_param, const int
             break;
 
         case param_quad_om:
-            for (unsigned i = 0; i < 4*psr->nQuad; ++i){
+            for (int i = 0; i < 4*psr->nQuad; ++i){
                 OUT.paramDerivs[OUT.nParams]     =t2FitFunc_quad_om;
                 OUT.updateFunctions[OUT.nParams] =t2UpdateFunc_quad_om;
                 OUT.paramCounters[OUT.nParams]=i;
@@ -1306,9 +1310,9 @@ paramDerivFunc getDerivFunction(pulsar* psr, param_label fit_param, const int k)
 
 void t2Fit_fillFitInfo_INNER(pulsar* psr, FitInfo &OUT, const int globalflag){
     for (param_label fit_param=0; fit_param < param_LAST; ++fit_param){
-        if (fit_param == param_ifunc){
+/*        if (fit_param == param_ifunc){
             logmsg("if: %d %d %d",psr->param[fit_param].paramSet[0],psr->param[fit_param].fitFlag[0],psr->param[fit_param].aSize);
-        }
+        }*/
         for(int k=0; k < psr->param[fit_param].aSize;k++){
             if (psr->param[fit_param].paramSet[k]>0 && psr->param[fit_param].fitFlag[k]==globalflag) {
                 t2fit_fillOneParameterFitInfo(psr,fit_param,k,OUT);
@@ -1328,7 +1332,7 @@ double t2Fit_getParamDeriv(pulsar* psr, const int i, const double x, const param
 int t2Fit_getParamMatrixRow(const FitInfo &fitinfo, const int ipsr, const param_label fit_param, const int k){
     int ret=-1;
 
-    for (unsigned i = 0; i < fitinfo.output.totalNfit; ++i) {
+    for (int i = 0; i < fitinfo.output.totalNfit; ++i) {
         // note that ipsr -1 represents global paramters, so applies to all pulsars
         if (((fitinfo.output.indexPsr[i] == ipsr) || (fitinfo.output.indexPsr[i] == -1))
                 && fitinfo.output.indexParam[i] == fit_param

@@ -59,7 +59,7 @@ double MSSmodel(pulsar *psr,int p,int obs,int param)
     double shapmax;
     double e2dot;
     double orbpx;
-    const char *CVS_verNum = "$Id: 37784ab876054453c17bb146921106fb6f08f19d $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("MSSmodel.C","MSSmodel()",CVS_verNum);
 
