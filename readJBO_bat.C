@@ -53,7 +53,7 @@ void readJBO_bat(char *fname,pulsar *psr,int p)
     //ints = (int*)raw_record;
     doubles = (double*)raw_record;
 
-    const char *CVS_verNum = "$Id: 1eb596e271b4ce060175a27c0cbf95e43da98159 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("readJBO_bat.C","readJBO_bat()",CVS_verNum);
 

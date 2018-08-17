@@ -249,7 +249,8 @@ extern "C" int graphicalInterface(int argc,char *argv[],pulsar *psr,int *npsr)
     char parFile[MAX_PSR][MAX_FILELEN];
     char timFile[MAX_PSR][MAX_FILELEN];
     char newParFile[MAX_FILELEN];
-    char gr[100]="/xs";
+    char gr[100];
+    strcpy(gr,"/xs");
     double unitFlag=1.0;  /* plot in seconds */
     float lockx1=0,lockx2=0;
     float locky1=0,locky2=0;
@@ -1002,7 +1003,18 @@ void doPlot(pulsar *psr,int npsr,char *gr,double unitFlag, char parFile[][MAX_FI
                 else strcpy(rmsStr,"rms");
             }
 
-            if (yplot==2) sprintf(title,"%s (%s = %.3f \\gms) %s",psr[0].name,rmsStr,psr[0].rmsPost,fitType);
+            if (yplot==2)
+	      {
+		if ((psr[0].TNsubtractDM==1) || (psr[0].TNsubtractRed ==1))
+		  {
+		    sprintf(title,"%s (%s = %.3f \\gms) %s",psr[0].name,rmsStr,psr[0].rmstn,fitType);
+		  }
+		else
+		  {
+		  sprintf(title,"%s (%s = %.3f \\gms) %s",psr[0].name,rmsStr,psr[0].rmsPost,fitType);
+		  }
+	      }
+	      
             else sprintf(title,"%s (%s = %.3f \\gms) %s",psr[0].name,rmsStr,psr[0].rmsPre,fitType);
 
             if (showChisq == 1)
@@ -1376,11 +1388,15 @@ void doPlot(pulsar *psr,int npsr,char *gr,double unitFlag, char parFile[][MAX_FI
                 if(psr[0].TNsubtractDM==0){
                     printf("will substract PL DM Variations on next Fit \n");
                     psr[0].TNsubtractDM=1;
-                }
+		    formResiduals(psr,npsr,1);
+		     textOutput(psr,npsr,0,0,0,0,"");
+		}
                 else if(psr[0].TNsubtractDM==1){
                     printf("will Re-add PL DM Variations on next Fit \n");
                     psr[0].TNsubtractDM=0;
-                }
+		    formResiduals(psr,npsr,1);
+		     textOutput(psr,npsr,0,0,0,0,"");
+		}
 
             }
             else if(key=='K'){
@@ -1389,13 +1405,13 @@ void doPlot(pulsar *psr,int npsr,char *gr,double unitFlag, char parFile[][MAX_FI
                     printf("Subtract red noise from fit\n");
                     psr[0].TNsubtractRed=1;
                     formResiduals(psr,npsr,1); // iteration);
-                    //textOutput(psr,npsr,0,0,0,0,"");
+                    textOutput(psr,npsr,0,0,0,0,"");
                 }
                 else if(psr[0].TNsubtractRed==1){
                     printf("Do Not Subtract Red Noise on next Fit \n");
                     psr[0].TNsubtractRed=0;
                     formResiduals(psr,npsr,1); // iteration);
-                    //textOutput(psr,npsr,0,0,0,0,"");
+                    textOutput(psr,npsr,0,0,0,0,"");
                 }
 
             }
@@ -1626,7 +1642,8 @@ void doPlot(pulsar *psr,int npsr,char *gr,double unitFlag, char parFile[][MAX_FI
                 else if (key=='C') /* Run UNIX command */
                 {
                     char str[1000];
-                    printf("Command: "); gets(str);
+                    printf("Command: ");
+           fgets(str,1000,stdin);
                     for (j=0;j<highlightNum;j++)
                     {	
                         ncount=0;
@@ -2519,7 +2536,7 @@ void changeParameters(pulsar *psr)
     printf("Setting parameters\n\n");
 
     printf("Enter name of parameter to change, or hit enter for a full list.\n");
-    gets(yesno);
+    fgets(yesno,100,stdin);
     if(strcmp(yesno,"")!=0){
         /* Determine the parameter */
         for(i=0;i<MAX_PARAMS;i++){
@@ -2543,7 +2560,7 @@ void changeParameters(pulsar *psr)
         printf("Enter desired value for parameter:\n");
         printf("%s = %.14lg : change to (don't change: n)\t",yesno,
                 (double)psr[0].param[k].val[deriv]);
-        gets(yesno);
+   fgets(yesno,100,stdin);
         if(!(yesno[0]=='n'))
             psr[0].param[k].val[deriv] = parse_longdouble(yesno);
     }
@@ -2556,7 +2573,7 @@ void changeParameters(pulsar *psr)
                 if (psr[0].param[i].paramSet[k]==1) /* If parameter set */
                 {
                     printf("%s = %.14f : change [(n = default)]\t",psr[0].param[i].label[k],(double)psr[0].param[i].val[k]);
-                    gets(yesno);
+           fgets(yesno,100,stdin);
                     if (!(yesno[0]=='n' || yesno[0]=='N' || strlen(yesno)==0))
                         psr[0].param[i].val[k] = parse_longdouble(yesno);
 
@@ -2684,7 +2701,7 @@ void changeFitParameters(pulsar *psr)
     printf("Setting fitting parameters\n\n");
 
     printf("Enter name of parameter to switch fitting for, or hit enter for a full list.\n");
-    gets(yesno);
+    fgets(yesno,100,stdin);
     if(strcmp(yesno,"")!=0){
         /* Determine the parameter */
         for(i=0;i<MAX_PARAMS;i++){
@@ -2723,14 +2740,14 @@ void changeFitParameters(pulsar *psr)
                     if (psr[0].param[i].fitFlag[k]==1)
                     {
                         printf("%s fitting (turn off fitting 'y', otherwise hit enter)\t",psr[0].param[i].label[k]);
-                        gets(yesno);
+           fgets(yesno,100,stdin);
                         if (yesno[0]=='y' || yesno[0]=='Y')
                             psr[0].param[i].fitFlag[k]=0;
                     }
                     else if (psr[0].param[i].fitFlag[k]==0)
                     {
                         printf("%s not fitting (turn on fitting 'y', otherwise hit enter)\t",psr[0].param[i].label[k]);
-                        gets(yesno);
+           fgets(yesno,100,stdin);
                         if (yesno[0]=='y' || yesno[0]=='Y')
                             psr[0].param[i].fitFlag[k]=1;
                     }
@@ -4049,6 +4066,8 @@ int setPlot(float *x,int count,pulsar *psr,int iobs,double unitFlag,int plotPhas
             x[count] = (float)(double)psr[0].obsn[iobs].residual/unitFlag;
             if(psr[0].AverageResiduals == 1){x[count] = (float)(psr[0].obsn[iobs].averageres);}
             else if (psr[0].AverageDMResiduals ==1){x[count] = (float)(psr[0].obsn[iobs].averagedmres);}
+	    else if (psr[0].TNsubtractRed ==1) {x[count] = (float)(psr[0].obsn[iobs].residualtn/unitFlag);}
+	    else if  (psr[0].TNsubtractDM ==1) {x[count] = (float)(psr[0].obsn[iobs].residualtn/unitFlag);}
 
         }
         else

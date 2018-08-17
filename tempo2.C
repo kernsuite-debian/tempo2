@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     FILE *alias;
     char **commandLine;
     clock_t startClock,endClock;
-    const char *CVS_verNum = "$Id: 3eba6778adfa5a1a70c93c91ea04239bea9c1f7d $";
+    const char *CVS_verNum = "$Id$";
 
     polyco_file[0] = '\0';
 

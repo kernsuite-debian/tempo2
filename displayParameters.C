@@ -44,7 +44,7 @@
 void displayParameters(int pos,char timFile[][MAX_FILELEN],char parFile[][MAX_FILELEN],pulsar *psr,int npsr)
 {
     int i, ic, p;
-    const char *CVS_verNum = "$Id: 47f4d27bb5409267d55db56e78f3e1bdc1f16033 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("displayParameters.C","displayParameters()",CVS_verNum);
 

@@ -60,7 +60,7 @@ double convertTOA(double mjd,char *clks);
 void toa2utc(pulsar *psr,int npsr)
 {
     int i,p;
-    const char *CVS_verNum = "$Id: 98809c6df0362ddf153a3b1344a9e31ba68d20c6 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("toa2utc.C","toa2utc__1()",CVS_verNum);
 
@@ -69,7 +69,7 @@ void toa2utc(pulsar *psr,int npsr)
         {
             if (psr[p].obsn[i].clockCorr!=0 && psr[p].obsn[i].clockCorr!=2)
             {
-                //	    logdbg("Getting clock corrections for %d",i);
+                //logdbg("Getting clock corrections for %s %lf %s",psr[p].obsn[i].fname,(double)psr[p].obsn[i].sat,psr[p].obsn[i].telID);
                 getClockCorrections(psr[p].obsn+i, psr[p].clockFromOverride,
                         psr[p].clock, psr[p].noWarnings);
             }
@@ -104,7 +104,7 @@ void toa2utc(pulsar *psr,int npsr)
 void toa2utc(pulsar *psr,int npsr)
 {
     int i,j,p,found=0;
-    const char *CVS_verNum = "$Id: 98809c6df0362ddf153a3b1344a9e31ba68d20c6 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("toa2utc.C","toa2utc__2()",CVS_verNum);
 
