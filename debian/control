@@ -2,7 +2,16 @@ Source: tempo2
 Section: science
 Priority: optional
 Maintainer: KERN packaging <packaging@kernsuite.info>
-Build-Depends: debhelper (>=9), dh-autoreconf, gfortran, libltdl-dev
+Build-Depends:
+ debhelper (>=9),
+ dh-autoreconf,
+ gfortran,
+ libltdl-dev,
+ libx11-dev,
+ libgsl-dev,
+ pgplot5,
+ libcfitsio-dev,
+ libfftw3-dev
 Standards-Version: 3.9.6
 Homepage: https://bitbucket.org/psrsoft/tempo2/
 Vcs-Git: git://github.com/kernsuite-debian/tempo2.git
