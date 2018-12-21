@@ -1,3 +1,10 @@
+tempo2 (2018.09.01-1) bionic; urgency=medium
+
+  [ Gijs Molenaar ]
+  * New upstream version 2018.09.01
+
+ -- KERN packaging <packaging@kernsuite.info>  Fri, 21 Dec 2018 15:30:20 +0200
+
 tempo2 (2018.07.1-1) bionic; urgency=medium
 
   [ Gijs Molenaar ]
