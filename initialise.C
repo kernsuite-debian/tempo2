@@ -39,7 +39,7 @@
 void initialise(pulsar *psr,int noWarnings)
 {
     int p;
-    const char *CVS_verNum = "$Id: 704ff9174de16bace2791f27d54a6a64798978d9 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("initialise.C","initialise()",CVS_verNum);
 
@@ -201,6 +201,7 @@ void initialiseOne (pulsar *psr, int noWarnings, int fullSetup)
     psr->nDMEvents=0;
     psr->nTNShapeletEvents=0;
     psr->sorted=0;
+    psr->detUinv=0;
     allocateMemory(psr,0);
     /*  psr->param[param_track].paramSet[0]=1;
         psr->param[param_track].val[0]=0.0;
@@ -586,7 +587,10 @@ void initialiseOne (pulsar *psr, int noWarnings, int fullSetup)
         sprintf(temp,"SXER_%04d",k+1);
         strcpy(psr->param[param_sxer].shortlabel[k],temp);
       }
-        
+        for (k=0; k < MAX_PARAMS; ++k){
+            psr->constraint_special[k]=0;
+        }
+
 
 }
 
@@ -608,7 +612,7 @@ void allocateMemory(pulsar *psr, int realloc)
         else if (i==param_bpjep || i==param_bpjph || i==param_bpja1 || i==param_bpjec || i==param_bpjom
                 || i==param_bpjpb)  psr->param[i].aSize = MAX_BPJ_JUMPS;
         else if (i==param_glep || i==param_glph || i==param_glf0 || i==param_glf1 || i==param_stateSwitchT || i==param_glf2 || 
-                i==param_glf0d || i==param_gltd) psr->param[i].aSize = 20;
+                i==param_glf0d || i==param_gltd) psr->param[i].aSize = 40;
         else if (i==param_dmassplanet)
             psr->param[i].aSize = 9;
         else if (i==param_dmx || i==param_dmxr1 || i==param_dmxr2)
@@ -657,12 +661,17 @@ void allocateMemory(pulsar *psr, int realloc)
 
 void destroyOne (pulsar *psr)
 {
-    int i = 0;
-
     if (psr->obsn)
         free (psr->obsn);
 
     free_blas(psr->covar);
+
+     for (int k=0; k < MAX_PARAMS; ++k){
+        if(psr->constraint_special[k]){
+            free(psr->constraint_special[k]);
+        }
+    }
+
 
     destroyMemory(psr);
 }

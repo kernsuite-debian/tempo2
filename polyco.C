@@ -102,7 +102,7 @@ void polyco(pulsar *psr,int npsr,longdouble polyco_MJD1,longdouble polyco_MJD2,i
     longdouble tmin[800];
     double utc;
     int nsets;
-    const char *CVS_verNum = "$Id: 11d17c31531e29664e033d44d628ddad77516dc9 $";
+    const char *CVS_verNum = "$Id$";
 
     /* buffers for three polyco outputs -- any input from the user is
      * prepended to the default file names */

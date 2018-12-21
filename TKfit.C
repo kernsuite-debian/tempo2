@@ -161,15 +161,25 @@ double TKrobustLeastSquares(double* b, double* white_b,
 double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         double** designMatrix, double** white_designMatrix,
         double** constraintsMatrix, int ndata,int nparams, int nconstraints, double tol, char rescale_errors,
-        double* outP, double* e, double** Ocvm, char robust){
+        double* outP, double* e, double** Ocvm, char robust) {
+    return TKrobustDefConstrainedLeastSquares(data, white_data,
+            designMatrix, white_designMatrix,
+            constraintsMatrix, ndata,nparams, nconstraints, tol, rescale_errors,
+            outP, e, Ocvm, robust,NULL);
+}
+
+
+
+double TKrobustDefConstrainedLeastSquares(double* data, double* white_data,
+        double** designMatrix, double** white_designMatrix,
+        double** constraintsMatrix, int ndata,int nparams, int nconstraints, double tol, char rescale_errors,
+        double* outP, double* e, double** Ocvm, char robust, double* constraint_vals) {
 
     if (robust > 48 ){
        return TKrobust(data,white_data,
                designMatrix, white_designMatrix, constraintsMatrix, ndata, nparams, nconstraints, tol,
-               rescale_errors,outP,e,Ocvm, robust);
-    }//end of if robust
-
-
+               rescale_errors,outP,e,Ocvm, robust, constraint_vals);
+    } //end of if robust
 
     double chisq = 0;
     int i,j,k;
@@ -268,15 +278,22 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
                 //if(i==j)logmsg("Cmatrix ic=%d ip=%d %lg",i,j,constraintsMatrix[i][j]);
             }
         }
+        if (constraint_vals != NULL) {
+            for (i=0;i<nconstraints;i++){
+                augmented_white_data[i+ndata] = constraint_vals[i];
+            }
+        }
         if(writeResiduals&2){
             logdbg("Writing out augmented design matrix");
             FILE * wFile=fopen("adesign.matrix","w");
+            FILE * yFile=fopen("awhite.res","w");
             if (!wFile){
                 printf("Unable to write out augmented design matrix: cannot open file adesign.matrix\n");
             }
             else
             {
                 for (i=0;i<ndata+nconstraints;i++) {
+                        fprintf(yFile,"%d %lg\n",i,augmented_white_data[i]);
                     for (j=0;j<nparams;j++){
                         fprintf(wFile,"%d %d %lg\n",i,j,augmented_DM[i][j]);
                     }
@@ -287,7 +304,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
         }
 
 
-        chisq = accel_lsq_qr(augmented_DM,augmented_white_data,outP,ndata+nconstraints,nparams,cvm);
+        chisq = accel_lsq_qr(augmented_DM,augmented_white_data,outP,ndata+nconstraints,nparams,cvm,rescale_errors);
         rescale_errors=false;
         free_blas(augmented_DM);
 
@@ -372,6 +389,8 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
                     cvm[i][j] = cvm[j][i] = (double)sum;
                 }
             } 
+
+            
 
             if(debugFlag==1) {
                 FILE *fout;
@@ -464,6 +483,25 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
                 fclose(wFile);
             }
         }
+        if (computeCVM) {
+            FILE *fout;
+            fout = fopen("cov.matrix","w");
+            if (!fout){
+                printf("Unable to open file cov.matrix for writing\n");
+            }
+            else{
+                for (i=0;i<nparams;i++)
+                {
+                    for (j=0;j<nparams;j++)
+                    {
+                        fprintf(fout,"%g ",cvm[i][j]);
+                    }
+                    fprintf(fout,"\n");
+                }
+                fclose(fout);
+            }
+        }
+
     }
     if(needToFreeCVM){
         if (Ocvm != NULL){
@@ -479,7 +517,7 @@ double TKrobustConstrainedLeastSquares(double* data, double* white_data,
 
     /** Robust Estimator code by Wang YiDi, Univ. Manchester 2015 **/
 
-   
+
     return chisq;
 }
 

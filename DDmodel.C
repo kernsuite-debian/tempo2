@@ -48,7 +48,7 @@ longdouble DDmodel(pulsar *psr,int p,int ipos,int param)
     longdouble  cu,onemecu,cae,sae,ae,omega,omz,sw,cw,alpha,beta,bg,dre,drep,drepp,anhat,su;
     longdouble sqr1me2,cume,brace,si,dlogbr,ds,da,a0,b0,d2bar,torb;
     longdouble csigma,ce,cx,comega,cgamma,cm2,csi;
-    const char *CVS_verNum = "$Id: b2338f13ba913de4009f1b09eaa6c3df4bbb5a38 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("DDmodel.C","DDmodel()",CVS_verNum);
 

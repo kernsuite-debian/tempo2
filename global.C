@@ -63,7 +63,7 @@ double FCALPHA, WNLEVEL, EXPSMOOTH, UPW, NFIT, FCFINAL;
 
 void extra_delays(pulsar *psr,int npsr)
 {  
-	const char *CVS_verNum = "$Id: 72205ebe9435164fec7e986305169f2ad7c43405 $";
+	const char *CVS_verNum = "$Id$";
 	if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"extra_delays()",CVS_verNum);
 
 	calculate_bclt(psr,npsr);/* 3. Calculate bclt  */
@@ -73,7 +73,7 @@ void extra_delays(pulsar *psr,int npsr)
 
 void clock_corrections(pulsar *psr,int npsr)
 {  
-	const char *CVS_verNum = "$Id: 72205ebe9435164fec7e986305169f2ad7c43405 $";
+	const char *CVS_verNum = "$Id$";
 	if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"clock_corrections()",CVS_verNum);
 
 	logdbg("Calling toa2utc");
@@ -101,7 +101,7 @@ void clock_corrections(pulsar *psr,int npsr)
 
 void ephemeris_routines(pulsar *psr,int npsr)
 { 
-	const char *CVS_verNum = "$Id: 72205ebe9435164fec7e986305169f2ad7c43405 $";
+	const char *CVS_verNum = "$Id$";
 	if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"ephemeris_routines()",CVS_verNum);
 
 	logtchk("call vectorPulsar()");
@@ -132,7 +132,7 @@ void ephemeris_routines(pulsar *psr,int npsr)
 
 void formBatsAll(pulsar *psr,int npsr)
 {
-	const char *CVS_verNum = "$Id: 72205ebe9435164fec7e986305169f2ad7c43405 $";
+	const char *CVS_verNum = "$Id$";
 	if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"formBatsAll()",CVS_verNum);
 
 	logtchk("enter formBatsAll()");
@@ -156,7 +156,7 @@ void formBatsAll(pulsar *psr,int npsr)
 // to change if psr position has been altered.
 void updateBatsAll(pulsar *psr, int npsr)
 {
-	const char *CVS_verNum = "$Id: 72205ebe9435164fec7e986305169f2ad7c43405 $";
+	const char *CVS_verNum = "$Id$";
 	if (displayCVSversion == 1) CVSdisplayVersion((char *)"global.C",(char *)"updateBatsAll()",CVS_verNum);
 
 	vectorPulsar(psr, npsr);

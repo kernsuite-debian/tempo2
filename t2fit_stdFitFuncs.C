@@ -106,6 +106,8 @@ void t2UpdateFunc_stdFreq(pulsar *psr, int ipsr ,param_label label,int k, double
         else if (k>2 && k<10)  scale=1.0e18L;
         else if (k>9) scale=1.0e23L;
 
+        //logmsg("%lg",(double)(1.0/(pow(24.0*3600.0,k+1))/scale* psr[ipsr].param[param_f].val[0]));
+
         psr[ipsr].param[param_f].val[k] = psr[ipsr].param[param_f].val[k] -
             (psr[ipsr].param[param_f].val[0]*(val/pow(24.0*3600.0,k+1))/scale);
         psr[ipsr].param[param_f].err[k] = error/(pow(24.0*3600.0,k+1))/scale*
@@ -149,6 +151,8 @@ double t2FitFunc_binaryModels(pulsar *psr, int ipsr ,double x ,int ipos ,param_l
         afunc = DDHmodel(psr,0,ipos,label);
     else if (strcmp(psr->binaryModel,"ELL1H")==0)
         afunc = ELL1Hmodel(psr,0,ipos,label);
+    else if (strcmp(psr->binaryModel,"ELL1k")==0)
+        afunc = ELL1kmodel(psr,0,ipos,label);
 
     logdbg("%s(%d) %s %d %s(%d) %g",psr->name,ipsr,psr->binaryModel,ipos,label_str[label],k,afunc);
     return afunc;
@@ -182,6 +186,8 @@ void t2UpdateFunc_binaryModels(pulsar *psr, int ipsr ,param_label label,int k, d
         updateDDH(&psr[ipsr],val,error,label);
     else if (strcmp(psr[ipsr].binaryModel,"ELL1H")==0)
         updateELL1H(&psr[ipsr],val,error,label);
+    else if (strcmp(psr[ipsr].binaryModel,"ELL1k")==0)
+        updateELL1k(&psr[ipsr],val,error,label);
 }
 
 

@@ -56,7 +56,7 @@ double BTJmodel(pulsar *psr,int p,int ipos,int param,int arr)
     double phase;
     double ep,dep,bige,tt,som,com;
     double alpha,beta,sbe,cbe,q,r,s;
-    const char *CVS_verNum = "$Id: bfc73733f9caab31c885435e4e957f2243fa20e5 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion("BTJmodel.C","BTJmodel()",CVS_verNum);
 

@@ -49,7 +49,7 @@
 #include "TKlog.h"
 
 
-#define TEMPO2_h_HASH "$Id: efb589e47998f21fdc20a12a28ff7351d5c78f2c $"
+#define TEMPO2_h_HASH "$Id$"
 #define TEMPO2_h_VER "2016.11.3"
 #define TEMPO2_h_MAJOR_VER 2016.11
 #define TEMPO2_h_MINOR_VER 3
@@ -170,7 +170,7 @@ enum label {
     param_tzrmjd,param_tzrfrq,param_fddc,param_fddi,param_fd,param_dr,param_dtheta,param_tspan,
     param_bpjep,param_bpjph,param_bpja1,param_bpjec,param_bpjom,param_bpjpb,
     param_wave_om,param_kom,param_kin,param_shapmax,param_dth,param_a0,
-    param_b0,param_xomdot,param_afac,param_eps1dot,param_eps2dot,param_tres,
+    param_b0,param_xomdot,param_afac,param_eps1dot,param_eps2dot,param_tres,param_trestn,
     param_wave_dm, param_waveepoch_dm,
     param_dshk,param_ephver,param_daop,param_iperharm,param_dmassplanet, param_dphaseplanet, param_waveepoch,param_ifunc,param_clk_offs,
     param_dmx,param_dmxr1,param_dmxr2,param_dmmodel,param_gwsingle,param_cgw,param_quad_om,
@@ -202,6 +202,8 @@ enum constraint {
     constraint_dmmodel_cw_1,
     constraint_dmmodel_cw_2,
     constraint_dmmodel_cw_3,
+    constraint_ifunc_cov,
+    constraint_ifunc_x0,
     constraint_ifunc_0,
     constraint_ifunc_1,
     constraint_ifunc_2,
@@ -254,6 +256,7 @@ enum constraint {
     constraint_group_red_sin,
     constraint_group_red_cos,
     constraint_jitter,
+    constraint_param,
     constraint_LAST /*!< marker for the last constraint */
 };
 
@@ -295,7 +298,7 @@ typedef double (*paramDerivFunc)(struct pulsar*, int,double,int,param_label,int)
  * Used to build the derivative matrix for the least squares solvers.
  *
  */
-typedef double (*constraintDerivFunc)(struct pulsar*, int,constraint_label,param_label,int,int);
+typedef double (*constraintDerivFunc)(struct pulsar*, int,constraint_label,param_label,int,int,void*);
 
 /*!
  * @brief a function used to update the parameters after a fit.
@@ -329,6 +332,8 @@ typedef struct FitInfo {
     int constraintCounters[MAX_FIT];
     paramDerivFunc paramDerivs[MAX_FIT];
     constraintDerivFunc constraintDerivs[MAX_FIT];
+    void* constraintSpecial[MAX_FIT];
+    double constraintValue[MAX_FIT];
     paramUpdateFunc updateFunctions[MAX_FIT];
     FitOutput output;
 } FitInfo;
@@ -388,8 +393,9 @@ typedef struct observation {
     int delayCorr;                  /*!< = 1 for time delay corrections to be applied, = 0 for BAT  */
     int deleted;                    /*!< = 1 if observation has been deleted, = -1 if not included in fit*/
     longdouble prefitResidual;      /*!< Pre-fit residual                                           */
-    longdouble residual;            /*!< residual                                                   */
-    double      addedNoise;
+    longdouble residual;            /*!< residual                        */
+  longdouble residualtn;
+  double      addedNoise;
     double      TNRedSignal;	  /*!< Model red noise signal from temponest fit */
     double      TNRedErr;		  /*!< Error on Model red noise signal from temponest fit */
     double      TNDMSignal;         /*!< Model DM signal from temponest fit */
@@ -638,7 +644,7 @@ typedef struct pulsar {
     int  nStorePrecision;
     int  bootStrap;           /*!< > 0 if calculating errors using bootstrap Monte-Carlo method */
     char tzrsite[100];        /*!< Site-code for polyco                                         */
-    double rmsPre,rmsPost;
+  double rmsPre,rmsPost, rmstn;
     char deleteFileName[100]; /*!< File name containing deleted points                          */
     int  nits;                /*!< Number of iterations for the fit                             */
     int  ipm;                 /*!< = 1 if use interplanetary medium DM correction, = 0 otherwise*/
@@ -745,6 +751,8 @@ typedef struct pulsar {
     char AverageFlag[MAX_FLAG_LEN];
     float AverageEpochWidth; 
 
+    double detUinv;
+
 
     int outputTMatrix;
     int useTNOrth;
@@ -806,6 +814,7 @@ typedef struct pulsar {
     double constraint_efactor;
     enum constraint constraints[MAX_PARAMS];/*!< Which constraints are specified */
     char auto_constraints;
+    char *constraint_special[MAX_PARAMS]; /* Special constraint parameters */
 
     FitInfo fitinfo;
 
@@ -962,6 +971,9 @@ extern "C" {
     void updateDDH( pulsar *psr, double val, double err, int pos );
     double ELL1Hmodel( pulsar *psr, int p, int obs, int param );
     void updateELL1H( pulsar *psr, double val, double err, int pos );
+    double ELL1kmodel( pulsar *psr, int p, int obs, int param );
+    void updateELL1k( pulsar *psr, double val, double err, int pos );
+
 
     void displayMsg(int type,const char *key,const char *searchStr,const char *variableStr,int noWarnings);
     void CVSdisplayVersion(const char *file,const char *func,const char *verNum);

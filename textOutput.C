@@ -62,7 +62,7 @@ void textOutput(pulsar *psr,int npsr,double globalParameter,int nGlobal,int outR
     double chisqr;
     int i,p,k;
     FILE *fout;
-    const char *CVS_verNum = "$Id: 5a408ad83202d55c911c56f8ec7ae5c62aee8598 $";
+    const char *CVS_verNum = "$Id$";
 
     if (displayCVSversion == 1) CVSdisplayVersion((char *)"textOutput.C",(char *)"textOutput()",CVS_verNum);
 
@@ -271,6 +271,9 @@ void textOutput(pulsar *psr,int npsr,double globalParameter,int nGlobal,int outR
         printf("---------------------------------------------------------------------------------------------------\n");
         if (psr[p].rescaleErrChisq == 1 && psr[p].fitMode==1)
             logmsg("Notice: Parameter uncertainties multiplied by sqrt(red. chisq)\n");
+        
+        if (psr[p].rescaleErrChisq == 0 && psr[p].fitMode==1)
+            logmsg("Notice: Parameter uncertainties NOT multiplied by sqrt(red. chisq)\n");
 
         if (psr[p].nconstraints>0){
             printf("\nCONSTRAINTS:\n");
@@ -1362,6 +1365,16 @@ void textOutput(pulsar *psr,int npsr,double globalParameter,int nGlobal,int outR
                     fprintf(fout2,"TNRedC %i\n", psr[p].TNRedC);
                 }
 
+		if (psr[p].TNRedFLow !=0 )
+		  {
+		    fprintf(fout2, "TNRedFLow %g\n", psr[p].TNRedFLow);
+		  }
+		//	if (psr[p].TNRedFMid !=0)
+		// {
+		//   fprintf(fout2, "TNRedFMid %g\n", psr[p].TNRedFMid);
+		// }
+		
+		
                 for(i =0; i < psr[p].nTNGroupNoise; i++){
 
                     fprintf(fout2,"TNGroupNoise %s %s %g %g %i\n", psr[p].TNGroupNoiseFlagID[i], psr[p].TNGroupNoiseFlagVal[i], psr[p].TNGroupNoiseAmp[i], psr[p].TNGroupNoiseGam[i], psr[p].TNGroupNoiseC[i]);
@@ -1446,6 +1459,11 @@ void textOutput(pulsar *psr,int npsr,double globalParameter,int nGlobal,int outR
                             fprintf(fout2,"CONSTRAIN DMMODEL\n");
                         }
                     }
+                    for (int i = 0; i < psr[p].nconstraints; i++){
+                        if (psr[p].constraints[i]==constraint_param){
+                            fprintf(fout2,"CONSTRAIN PARAM %s\n",psr[p].constraint_special[i]);
+                        }
+                    }
                 }
 
 
@@ -1485,6 +1503,8 @@ double calcRMS(pulsar *psr,int p)
     double sumwt=0.0,rms_pre=0.0,rms_post=0.0,wgt=0.0,sumsq_post=0.0;
     double sumsq_pre=0.0,sum_pre=0.0,sum_post=0.0,mean_post=0.0,mean_pre=0.0;
     int i,count=0;
+    double sum_tn=0.,sumsq_tn=0.0,rms_tn=0.0;
+    
 
     for (i=0;i<psr[p].nobs;i++)
     {
@@ -1505,7 +1525,11 @@ double calcRMS(pulsar *psr,int p)
 
             sumsq_post += (double)(wgt*psr[p].obsn[i].residual*psr[p].param[param_f].val[0]*psr[p].obsn[i].residual*psr[p].param[param_f].val[0]);
             sum_post   += (double)(wgt*psr[p].obsn[i].residual*psr[p].param[param_f].val[0]);
-            sumwt += wgt;
+
+	    sumsq_tn += (double)(wgt*psr[p].obsn[i].residualtn*psr[p].param[param_f].val[0]*psr[p].obsn[i].residualtn*psr[p].param[param_f].val[0]);
+	    sum_tn += (double)(wgt*psr[p].obsn[i].residualtn*psr[p].param[param_f].val[0]);
+	    
+	    sumwt += wgt;
             mean_post += (double)psr[p].obsn[i].residual;
             count++;
         }
@@ -1516,12 +1540,17 @@ double calcRMS(pulsar *psr,int p)
 
     rms_pre = sqrt((sumsq_pre-sum_pre*sum_pre/sumwt)/sumwt)*1e3/psr[p].param[param_f].val[0]*1e3;
     rms_post = sqrt((sumsq_post-sum_post*sum_post/sumwt)/sumwt)*1e3/psr[p].param[param_f].val[0]*1e3;
+    rms_tn = sqrt((sumsq_tn-sum_tn*sum_tn/sumwt)/sumwt)*1e3/psr[p].param[param_f].val[0]*1e3;
+    
+
     logdbg("textOutput %g %g %g %G %d",rms_pre,rms_post,sumsq_pre,sum_pre,count);
 
 
     psr[p].rmsPre  = rms_pre;
     psr[p].rmsPost = rms_post;
+      psr[p].rmstn = rms_tn;
     psr[p].param[param_tres].val[0] = rms_post;
+    psr[p].param[param_trestn].val[0] = rms_tn;
     psr[p].param[param_tres].paramSet[0] = 1;
     return sumwt;
 }
@@ -1595,8 +1624,8 @@ void printGlitch(pulsar psr)
 
             printf("MJD for zero glitch  %d phase = %.6f or %.6f, error = %g\n",iglitch,glep1z,glep2z,glepe);
 
-            dfof = (double)(psr.param[param_glf0].val[iglitch]/psr.param[param_f].val[iglitch]);
-            edfof = (double)(psr.param[param_glf0].err[iglitch]/psr.param[param_f].val[iglitch]);
+            dfof = (double)(psr.param[param_glf0].val[iglitch]/psr.param[param_f].val[0]);
+            edfof = (double)(psr.param[param_glf0].err[iglitch]/psr.param[param_f].val[0]);
             printf("Delta f/f = %g +/- %g\n",dfof,edfof);
 
             df1of1 = (double)(psr.param[param_glf1].val[iglitch]/psr.param[param_f].val[1]);
